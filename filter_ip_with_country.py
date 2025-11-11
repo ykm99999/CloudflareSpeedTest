@@ -1,14 +1,16 @@
 import ipaddress
 import socket
 import requests
+import time
 import concurrent.futures
 
 INPUT_FILE = "ip.txt"
 OUTPUT_FILE = "ip.txt"
 PORTS_TO_CHECK = [443, 2053, 8443, 2096, 2083, 80]
 TARGET_COUNTRIES = ["香港", "台湾", "韩国", "日本"]
-MAX_IPS_PER_CIDR = 100
+MAX_IPS_PER_CIDR = 30
 MAX_THREADS = 20
+GEO_DELAY = 0.2  # 每次归属地查询间隔（秒）
 
 def expand_ip(line):
     line = line.strip()
@@ -24,13 +26,14 @@ def expand_ip(line):
 def detect_port(ip):
     for port in PORTS_TO_CHECK:
         try:
-            with socket.create_connection((ip, port), timeout=2):
+            with socket.create_connection((ip, port), timeout=1):
                 return port
         except:
             continue
     return None
 
 def get_country(ip):
+    time.sleep(GEO_DELAY)
     try:
         r = requests.get(f"http://ip-api.com/json/{ip}?lang=zh-CN", timeout=5)
         data = r.json()
@@ -55,6 +58,7 @@ def get_country(ip):
     return "未知"
 
 def process_ip(ip):
+    print(f"正在处理：{ip}")
     port = detect_port(ip)
     if not port:
         return None
@@ -74,6 +78,9 @@ def main():
     all_ips = []
     for line in lines:
         all_ips.extend(expand_ip(line))
+
+    # 限制总 IP 数量（调试用）
+    # all_ips = all_ips[:200]
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
