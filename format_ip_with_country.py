@@ -1,15 +1,13 @@
 import ipaddress
 import socket
 import requests
-import time
 import concurrent.futures
 
 INPUT_FILE = "ip.txt"
 OUTPUT_FILE = "ip.txt"
 PORTS_TO_CHECK = [443, 2053, 8443, 2096, 2083, 80]
 TARGET_COUNTRIES = ["香港", "台湾", "韩国", "日本"]
-API_URL = "http://ip-api.com/json/{}?lang=zh-CN"
-MAX_IPS_PER_CIDR = 100  # 每个网段最多探测多少个 IP
+MAX_IPS_PER_CIDR = 100
 MAX_THREADS = 20
 
 def expand_ip(line):
@@ -34,10 +32,24 @@ def detect_port(ip):
 
 def get_country(ip):
     try:
-        r = requests.get(API_URL.format(ip), timeout=5)
+        r = requests.get(f"http://ip-api.com/json/{ip}?lang=zh-CN", timeout=5)
         data = r.json()
-        if data["status"] == "success":
+        if data.get("status") == "success" and data.get("country"):
             return data["country"]
+    except:
+        pass
+    # 备用接口
+    try:
+        r = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        data = r.json()
+        if "country" in data:
+            country_map = {
+                "HK": "香港",
+                "TW": "台湾",
+                "KR": "韩国",
+                "JP": "日本"
+            }
+            return country_map.get(data["country"], "未知")
     except:
         pass
     return "未知"
@@ -49,7 +61,7 @@ def process_ip(ip):
     country = get_country(ip)
     if country not in TARGET_COUNTRIES:
         return None
-    return f"{ip}:{port}#{country}"
+    return f"{ip}#{country}"
 
 def main():
     try:
