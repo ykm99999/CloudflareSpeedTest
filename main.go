@@ -81,7 +81,7 @@ func main() {
 	endPrint()
 }
 
-func writeIPWithCountry(data []*task.Result) {
+func writeIPWithCountry(data []*task.IPResult) {
 	file, err := os.Create("ip.txt")
 	if err != nil {
 		fmt.Println("无法创建 ip.txt:", err)
@@ -96,7 +96,7 @@ func writeIPWithCountry(data []*task.Result) {
 			file.WriteString(fmt.Sprintf("%s#%s\n", ip, country))
 		}
 	}
-	fmt.Println("已生成 ip.txt（格式：IP#国家）")
+	fmt.Println("✅ 已生成 ip.txt（格式：IP#国家）")
 }
 
 func getCountry(ip string) string {
