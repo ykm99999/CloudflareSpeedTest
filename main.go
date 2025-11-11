@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
+	"flag"  
 	"fmt"
 	"io"
 	"net"
@@ -11,12 +11,12 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/XIU2/CloudflareSpeedTest/task"
+	"github.com/XIU2/CloudflareSpeedTest/task"  
 	"github.com/XIU2/CloudflareSpeedTest/utils"
 )
 
 var (
-	version    = "v1.0.0"
+	version    = "v1.0.0"    
 	versionNew string
 	ipCountry  = make(map[string]string)
 )
@@ -31,12 +31,12 @@ func init() {
 	flag.IntVar(&task.TestCount, "dn", 10, "下载测速数量")
 	flag.IntVar(&downloadTime, "dt", 10, "下载测速时间")
 	flag.IntVar(&task.TCPPort, "tp", 443, "指定测速端口")
-	flag.StringVar(&task.URL, "url", "https://cf.xiu2.xyz/url", "指定测速地址")
+	flag.StringVar(&task.URL, "url", "https://cf.xiu2.xyz/url", "指定测速地址")  
 
-	flag.IntVar(&maxDelay, "tl", 9999, "平均延迟上限")
+	flag.IntVar(&maxDelay, "tl", 9999, "平均延迟上限")  
 	flag.IntVar(&minDelay, "tll", 0, "平均延迟下限")
 	flag.Float64Var(&maxLossRate, "tlr", 1, "丢包几率上限")
-	flag.Float64Var(&task.MinSpeed, "sl", 0, "下载速度下限")
+	flag.Float64Var(&task.MinSpeed, "sl", 0, "下载速度下限")  
 
 	flag.IntVar(&utils.PrintNum, "p", 10, "显示结果数量")
 	flag.StringVar(&task.IPFile, "f", "ip.txt", "IP段数据文件")
@@ -52,15 +52,15 @@ func init() {
 
 	utils.InputMaxDelay = time.Duration(maxDelay) * time.Millisecond
 	utils.InputMinDelay = time.Duration(minDelay) * time.Millisecond
-	utils.InputMaxLossRate = float32(maxLossRate)
+	utils.InputMaxLossRate = float32(maxLossRate)  
 	task.Timeout = time.Duration(downloadTime) * time.Second
-	task.HttpingCFColomap = task.MapColoMap()
+	task.HttpingCFColomap = task.MapColoMap()  
 
 	if printVersion {
 		println(version)
 		fmt.Println("检查版本更新中...")
 		checkUpdate()
-		if versionNew != "" {
+		if versionNew != "" {  
 			utils.Yellow.Printf("*** 发现新版本 [%s]！请前往 [https://github.com/XIU2/CloudflareSpeedTest] 更新！ ***", versionNew)
 		} else {
 			utils.Green.Println("当前为最新版本 [" + version + "]！")
@@ -76,13 +76,13 @@ func main() {
 	pingData := task.NewPing().Run().FilterDelay().FilterLossRate()
 	speedData := task.TestDownloadSpeed(pingData)
 	utils.ExportCsv(speedData)
-	speedData.Print()
+	speedData.Print()  
 
 	writeIPWithCountry(speedData)
 	endPrint()
 }
 
-func writeIPWithCountry(data []*task.IPResult) {
+func writeIPWithCountry(data []*task.Result) {
 	file, err := os.Create("ip.txt")
 	if err != nil {
 		fmt.Println("无法创建 ip.txt:", err)
@@ -100,7 +100,7 @@ func writeIPWithCountry(data []*task.IPResult) {
 	fmt.Println("已生成 ip.txt（格式：IP#国家）")
 }
 
-func getCountry(ip string) string {
+func getCountry(ip string) string {  
 	if val, ok := ipCountry[ip]; ok {
 		return val
 	}
