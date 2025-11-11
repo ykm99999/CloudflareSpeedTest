@@ -1,30 +1,36 @@
-name: Test & Upload CF IP
+name: Cloudflare 优选 IP 自动上传
 
 on:
   schedule:
-    - cron: '0 */12 * * *'
-  workflow_dispatch:
+    - cron: '0 */12 * * *'  # 每12小时运行
+  workflow_dispatch:        # 支持手动触发
 
 jobs:
   run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 拉取仓库代码
         uses: actions/checkout@v3
 
-      - name: Install Go
+      - name: 安装 Go 环境
         uses: actions/setup-go@v4
         with:
           go-version: '1.20'
 
-      - name: Build CloudflareSpeedTest
+      - name: 构建并运行 CloudflareSpeedTest
         run: |
           go build -o cfst main.go
           ./cfst
 
-      - name: 格式化 IP 并标注国家
-        run: python3 format_ip_with_country.py
+      - name: 安装 Python 环境
+        run: sudo apt-get update && sudo apt-get install -y python3 python3-pip
+
+      - name: 安装 Python 依赖（如 requests）
+        run: pip3 install requests
+
+      - name: 筛选 IP（端口 + 国家 + 网段支持）
+        run: python3 filter_ip_with_ports_and_country.py
 
       - name: 上传 ip.txt 到 GitHub
         env:
