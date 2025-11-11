@@ -29,6 +29,9 @@ jobs:
       - name: 安装 Python 依赖
         run: pip3 install requests
 
+      - name: 查看生成的 ip.txt 内容（调试用）
+        run: cat ip.txt || echo "ip.txt 不存在或为空"
+
       - name: 上传 ip.txt 到 GitHub
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
