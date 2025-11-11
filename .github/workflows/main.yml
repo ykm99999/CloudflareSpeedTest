@@ -29,9 +29,6 @@ jobs:
       - name: 安装 Python 依赖
         run: pip3 install requests
 
-      - name: 筛选 IP（国家 + 网段支持）
-        run: python3 filter_ip_with_country.py
-
       - name: 上传 ip.txt 到 GitHub
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
