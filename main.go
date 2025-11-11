@@ -81,7 +81,7 @@ func main() {
 	endPrint()
 }
 
-func writeIPWithCountry(data []*task.SpeedResult) {
+func writeIPWithCountry(data []*task.Result) {
 	file, err := os.Create("ip.txt")
 	if err != nil {
 		fmt.Println("无法创建 ip.txt:", err)
