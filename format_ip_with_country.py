@@ -1,10 +1,20 @@
+import socket
 import requests
 import time
 
 INPUT_FILE = "ip.txt"
 OUTPUT_FILE = "ip.txt"
-PORT = 16097
 API_URL = "http://ip-api.com/json/{}?lang=zh-CN"
+PORTS_TO_CHECK = [443, 80, 8080]
+
+def detect_port(ip):
+    for port in PORTS_TO_CHECK:
+        try:
+            with socket.create_connection((ip, port), timeout=2):
+                return port
+        except:
+            continue
+    return None
 
 def get_country(ip):
     try:
@@ -26,10 +36,14 @@ def process_ips():
 
     results = []
     for ip in ips:
+        port = detect_port(ip)
         country = get_country(ip)
-        results.append(f"{ip}:{PORT}#{country}")
-        print(f"{ip} → {country}")
-        time.sleep(1.2)  # 避免 API 限速
+        if port:
+            results.append(f"{ip}:{port}#{country}")
+            print(f"{ip}:{port} → {country}")
+        else:
+            print(f"{ip} 无开放端口，跳过")
+        time.sleep(1.2)
 
     with open(OUTPUT_FILE, "w") as f:
         f.write("\n".join(results))
