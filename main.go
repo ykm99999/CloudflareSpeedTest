@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
@@ -15,9 +16,9 @@ import (
 )
 
 var (
-	version     = "v1.0.0"
-	versionNew  string
-	ipCountry   = make(map[string]string)
+	version    = "v1.0.0"
+	versionNew string
+	ipCountry  = make(map[string]string)
 )
 
 func init() {
@@ -81,7 +82,7 @@ func main() {
 	endPrint()
 }
 
-func writeIPWithCountry(data []task.Result) {
+func writeIPWithCountry(data []*task.IPResult) {
 	file, err := os.Create("ip.txt")
 	if err != nil {
 		fmt.Println("无法创建 ip.txt:", err)
@@ -90,10 +91,10 @@ func writeIPWithCountry(data []task.Result) {
 	defer file.Close()
 
 	for _, r := range data {
-		country := getCountry(r.IP)
+		ip := r.IP.String()
+		country := getCountry(ip)
 		if country != "" && country != "未知" {
-			line := fmt.Sprintf("%s#%s\n", r.IP, country)
-			file.WriteString(line)
+			file.WriteString(fmt.Sprintf("%s#%s\n", ip, country))
 		}
 	}
 	fmt.Println("已生成 ip.txt（格式：IP#国家）")
